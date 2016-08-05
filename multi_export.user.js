@@ -82,8 +82,8 @@ function wrapper() {
             o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
                     +"<name>" + name + "</name>"
                     +"<desc>" + "Lat/Lon: " + lat + " " + lng + "\n"
-                              + "Intel: " + "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&z=17&pll=" + lat + "," + lng + "\n"
-                              + "GMap: " + "http://maps.google.com/?ll=" + lat + "," + lng + "&q=" + lat + ","  + lng + "\n"
+                              + "Intel: " + "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng + "\n"
+                              + "GMap: " + "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng + "\n"
                     +"</desc>"
                   +"</wpt>"
                  );
