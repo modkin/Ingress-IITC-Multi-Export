@@ -43,8 +43,11 @@ function wrapper() {
         {
             var name = bookmarks.portals.idOthers.bkmrk[i].label;
             var gpscoord = bookmarks.portals.idOthers.bkmrk[i].latlng;
-
-            o.push(name + ";https://www.ingress.com/intel?ll=" + gpscoord + "&z=18&pll=" + gpscoord + ";0");
+            var keys = 0;
+            if(plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid]){
+                keys = plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid];
+            }
+            o.push(name + ";https://www.ingress.com/intel?ll=" + gpscoord + "&z=18&pll=" + gpscoord + ";" + keys);
         }
 
         var dialog = window.dialog({
