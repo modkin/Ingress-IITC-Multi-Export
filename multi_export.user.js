@@ -62,6 +62,8 @@ function wrapper() {
     };
 
 /*********** GPX on Map *******************************************************/
+    //TODO max lat lng in header?
+    //TODO header überarbeiten (time stemp, ...
     window.plugin.gpxexport = function() {
         var o = [];
         o.push("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
