@@ -31,6 +31,21 @@ function wrapper() {
         }).parent();
         // width first, then centre
     };
+    
+/*********** BOOKMARK MENUE ****************************************************/
+    window.plugin.createbkmrkmenu = function() {
+        var htmlcontent = '<div class="multiExportSetbox">';
+        var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
+        for(var i in bookmarks.portals){
+            htmlcontent += bookmarks.portals[i].label;
+        }
+        htmlcontent += '</div>';
+        window.dialog({
+            title: "Multi Export Options",
+            html: htmlcontent
+        }).parent();
+        // width first, then centre
+    };
 
 /*********** MAX FIELD on BOOKMARK ********************************************/
     //TODO menu to chuse bookmarks
