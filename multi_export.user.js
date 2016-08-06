@@ -31,6 +31,21 @@ function wrapper() {
         }).parent();
         // width first, then centre
     };
+    
+/*********** BOOKMARK MENUE ****************************************************/
+    window.plugin.createbkmrkmenu = function() {
+        var htmlcontent = '<div class="multiExportSetbox">';
+        var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
+        for(var i in bookmarks.portals){
+            htmlcontent += bookmarks.portals[i].label;
+        }
+        htmlcontent += '</div>';
+        window.dialog({
+            title: "Multi Export Options",
+            html: htmlcontent
+        }).parent();
+        // width first, then centre
+    };
 
 /*********** MAX FIELD on BOOKMARK ********************************************/
     //TODO menu to chuse bookmarks
@@ -126,9 +141,7 @@ function wrapper() {
             if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng
                 || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
             // Microdegrees conversion - added by trefmanic
-            latE6 = Math.round ( p._latlng.lat * 1000000 );
-            lngE6 = Math.round ( p._latlng.lng * 1000000 );
-            o.push("\"" + p.options.data.title.replace(/\"/g, "\\\"") + "\"," + latE6 + "," + lngE6);
+            o.push("\"" + p.options.data.title.replace(/\"/g, "\\\"") + "\"," + p._latlng.lat + "," + p._latlng.lng);
         }
 
         var dialog = window.dialog({
