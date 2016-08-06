@@ -24,9 +24,9 @@ function wrapper() {
         window.dialog({
             title: "Multi Export Options",
             html: '<div class="multiExportSetbox">'
-            + "<a onclick=\"window.plugin.gpxexport();\" title=\"Generate a GPX list of portals and location\">GPX Export</a>"
-            + "<a onclick=\"window.plugin.csvexport();\" title=\"Generate a CSV list of portals and locations\">CSV Export</a>"
-            + "<a onclick=\"window.plugin.maxfields();\" title=\"Generate a list of portals and locations for use with maxfield\">Maxfields Export</a>"
+            + "<a onclick=\"window.plugin.gpxexport();\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
+            + "<a onclick=\"window.plugin.csvexport();\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
+            + "<a onclick=\"window.plugin.maxfields();\" title=\"Generate a list of portals and locations for use with maxfield\">Maxfields Export from Bookmarks</a>"
             + "</div>"
         }).parent();
         // width first, then centre
