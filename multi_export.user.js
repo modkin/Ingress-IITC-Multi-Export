@@ -141,7 +141,7 @@ function wrapper() {
             if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng
                 || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
             // Microdegrees conversion - added by trefmanic
-            o.push("\"" + p.options.data.title.replace(/\"/g, "\\\"") + "\"," + p._latlng.lat + "," + p._latlng.lng);
+            o.push("\"" + p.options.data.title + "\"," + p._latlng.lat + "," + p._latlng.lng);
         }
 
         var dialog = window.dialog({
