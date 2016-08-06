@@ -34,7 +34,6 @@ function wrapper() {
 
 /*********** MAX FIELD on BOOKMARK ********************************************/
     //TODO menu to chuse bookmarks
-    //TODO add number of keys
     window.plugin.maxfields = function()
     {
         var o = [];
@@ -52,15 +51,19 @@ function wrapper() {
 
         var dialog = window.dialog({
             title: "Maxfields Export from Bookmarks",
+            dialogClass: 'ui-dialog-maxfieldexport',
             html: '<span>Use the list bellow as input for maxfields.</span>'
-                + '<textarea id="idmExport" style="width: 600px; height: ' + ($(window).height() - 150) + 'px; margin-top: 5px;"></textarea>'
+                + '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
+                + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
         }).parent();
-        $(".ui-dialog-buttonpane", dialog).remove();
+
         dialog.css("width", 630).css({
             "top": ($(window).height() - dialog.height()) / 2,
             "left": ($(window).width() - dialog.width()) / 2
         });
+
         $("#idmExport").val(o.join("\n"));
+
         return dialog;
     };
 
@@ -97,20 +100,23 @@ function wrapper() {
 
         var dialog = window.dialog({
             title: "GPX Export from Map",
+            dialogClass: 'ui-dialog-gpxexport',
             html: '<span>Save the list below as a GPX file.</span>'
-                + '<textarea id="idmExport" style="width: 600px; height: ' + ($(window).height() - 150) + 'px; margin-top: 5px;"></textarea>'
+                + '<textarea readonly id="idmExport" style="width: 600px; height: '+ ($(window).height() /2) + 'px; margin-top: 5px;"></textarea>'
+                + '<p><a onclick="$(\'.ui-dialog-gpxexport textarea\').select();">Select all</a></p>'
         }).parent();
-        $(".ui-dialog-buttonpane", dialog).remove();
+
         dialog.css("width", 630).css({
             "top": ($(window).height() - dialog.height()) / 2,
             "left": ($(window).width() - dialog.width()) / 2
         });
+
         $("#idmExport").val(o.join("\n"));
+
         return dialog;
     };
 
 /*********** CSV on Map *******************************************************/
-    //TODO broken
     window.plugin.csvexport = function() {
         var o = [];
         for (var x in window.portals) {
@@ -126,16 +132,20 @@ function wrapper() {
         }
 
         var dialog = window.dialog({
-            title: "Ingress CSV export",
-            html: '<span>Save the list below as a CSV file.</span>' + '<textarea id="idmGPXExport" style="width: 600px; height: ' + ($(window).height() - 150) + 'px; margin-top: 5px;"></textarea>'
+            title: "Ingress CSV export from Map",
+            dialogClass: 'ui-dialog-csvexport',
+            html: '<span>Save the list below as a CSV file.</span>'
+                + '<textarea readonly id="idmGPXExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
+                + '<p><a onclick="$(\'.ui-dialog-csvexport textarea\').select();">Select all</a></p>'
         }).parent();
-        $(".ui-dialog-buttonpane", dialog).remove();
-        // width first, then centre
+
         dialog.css("width", 630).css({
             "top": ($(window).height() - dialog.height()) / 2,
             "left": ($(window).width() - dialog.width()) / 2
         });
+
         $("#idmGPXExport").val(o.join("\n"));
+
         return dialog;
     };
 
