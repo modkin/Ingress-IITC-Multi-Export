@@ -12,6 +12,16 @@
 // @grant          none
 // ==/UserScript==
 
+
+function getFormattedDate() {
+    var date = new Date();
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
+    return str;
+}
+
+
+
 function wrapper() {
     // in case IITC is not available yet, define the base plugin object
     if (typeof window.plugin !== "function") {
@@ -84,11 +94,21 @@ function wrapper() {
 
 /*********** GPX on Map *******************************************************/
     //TODO max lat lng in header?
-    //TODO header überarbeiten (time stemp, ...
+    //TODO time stemp
     window.plugin.gpxexport = function() {
         var o = [];
         o.push("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        o.push("<gpx xmlns=\"http://www.topografix.com/GPX/1/0\"  version=\"1.0\" creator=\"Dom\">");
+        o.push("<gpx version=\"1.1\" "
+               +"creator=\"IITC-Multisxporter\" "
+               +"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+               +"xmlns=\"http://www.topografix.com/GPX/1/1\" "
+               +"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\""
+               +">");
+        o.push("<metadata>");
+        //o-oush("<name> \"Ingress Portal Map\"</name>");
+        o.push("<link href=\"https://ingress.com/intel\"></link>");
+        //o.push("<time>" + getFormattedDate() + "</time>");
+        o.push("</metadata>");
         for (var x in window.portals)
         {
             var p = window.portals[x];
@@ -101,13 +121,16 @@ function wrapper() {
             lat = p._latlng.lat;
             lng = p._latlng.lng;
             name = p.options.data.title;
+            iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
+            gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
 
             o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
                     +"<name>" + name + "</name>"
                     +"<desc>" + "Lat/Lon: " + lat + " " + lng + "\n"
-                              + "Intel: " + "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng + "\n"
-                              + "GMap: " + "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng + "\n"
-                    +"</desc>"
+                              + "Intel: " + iitcLink + "\n"
+                              + "GMap: " + gmapLink + "\n"
+                    +"</desc>\n"
+                    +"<link href=\"" + iitcLink + "\"></link>\n"
                   +"</wpt>"
                  );
         }
