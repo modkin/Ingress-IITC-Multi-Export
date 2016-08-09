@@ -27,20 +27,21 @@ function wrapper() {
             + "<a onclick=\"window.plugin.export('GPX','VIEW');\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
             + "<a onclick=\"window.plugin.export('CSV','VIEW');\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
             + "<a onclick=\"window.plugin.export('MF','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>"
-            + "<a onclick=\"window.plugin.export('GPX','BKMRK');\" title=\"Generate a GPX list of portals from Bookmarks\">GPX Export from Bookmarks</a>"
-            + "<a onclick=\"window.plugin.export('CSV','BKMRK');\" title=\"Generate a CSV list of portals from Bookmarks\">CSV Export from Bookmarks</a>"
-            + "<a onclick=\"window.plugin.export('MF','BKMRK');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Bookmarks</a>"
+            + "<a onclick=\"window.plugin.bkmrkmenu('GPX');\" title=\"Generate a GPX list of portals from Bookmarks\">GPX Export from Bookmarks</a>"
+            + "<a onclick=\"window.plugin.bkmrkmenu('CSV');\" title=\"Generate a CSV list of portals from Bookmarks\">CSV Export from Bookmarks</a>"
+            + "<a onclick=\"window.plugin.bkmrkmenu('MF');\" title=\"Generate a list of portals for use with maxfield from Bookmarks\">Maxfield Export from Bookmarks</a>"
             + "</div>"
         }).parent();
         // width first, then centre
     };
 
     /*********** BOOKMARK MENUE ****************************************************/
-    window.plugin.createbkmrkmenu = function() {
+    window.plugin.bkmrkmenu = function(type) {
         var htmlcontent = '<div class="multiExportSetbox">';
         var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
         for(var i in bookmarks.portals){
-            htmlcontent += bookmarks.portals[i].label;
+            htmlcontent += "<a onclick=\"window.plugin.export('" +type+"','BKMRK','"+i+"');\""
+            + "title=\"Generate GPX list\">" + bookmarks.portals[i].label + "</a>";
         }
         htmlcontent += '</div>';
         window.dialog({
@@ -51,8 +52,9 @@ function wrapper() {
     };
 
     /*********** ABSTRACT EXPORT FUNCTION ******************************************/
-    window.plugin.export = function(type, source)
+    window.plugin.export = function(type, source, bkmrkFolder)
     {
+        console.log(type);
         var o = [];
         var portals;
         var sourceTitle;
@@ -64,7 +66,7 @@ function wrapper() {
                 break;
             case 'BKMRK':
                 var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
-                portals = bookmarks.portals.idOthers.bkmrk;
+                portals = bookmarks.portals[bkmrkFolder].bkmrk;
                 windowTitle = windowTitle + 'Bookmarks';
                 break;
         }
@@ -93,10 +95,10 @@ function wrapper() {
                     if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
                     break;
                 case 'BKMRK':
-                    var name = bookmarks.portals.idOthers.bkmrk[i].label;
-                    var latlng = bookmarks.portals.idOthers.bkmrk[i].latlng;
-                    if(plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid]){
-                        keys = plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid];
+                    var name = bookmarks.portals[bkmrkFolder].bkmrk[i].label;
+                    var latlng = bookmarks.portals[bkmrkFolder].bkmrk[i].latlng;
+                    if(plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid]){
+                        keys = plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid];
                     }
                     break;
             }
