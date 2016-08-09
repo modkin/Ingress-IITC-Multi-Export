@@ -12,16 +12,6 @@
 // @grant          none
 // ==/UserScript==
 
-
-function getFormattedDate() {
-    var date = new Date();
-    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-
-    return str;
-}
-
-
-
 function wrapper() {
     // in case IITC is not available yet, define the base plugin object
     if (typeof window.plugin !== "function") {
@@ -34,10 +24,12 @@ function wrapper() {
         window.dialog({
             title: "Multi Export Options",
             html: '<div class="multiExportSetbox">'
-            + "<a onclick=\"window.plugin.gpxexport();\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
-            + "<a onclick=\"window.plugin.csvexport();\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
-            + "<a onclick=\"window.plugin.export('CSV','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>"
-            + "<a onclick=\"window.plugin.maxfields();\" title=\"Generate a list of portals and locations for use with maxfield\">Maxfields Export from Bookmarks</a>"
+            + "<a onclick=\"window.plugin.export('GPX','VIEW');\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
+            + "<a onclick=\"window.plugin.export('CSV','VIEW');\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
+            + "<a onclick=\"window.plugin.export('MF','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>"
+            + "<a onclick=\"window.plugin.export('GPX','BKMRK');\" title=\"Generate a GPX list of portals from Bookmarks\">GPX Export from Bookmarks</a>"
+            + "<a onclick=\"window.plugin.export('CSV','BKMRK');\" title=\"Generate a CSV list of portals from Bookmarks\">CSV Export from Bookmarks</a>"
+            + "<a onclick=\"window.plugin.export('MF','BKMRK');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Bookmarks</a>"
             + "</div>"
         }).parent();
         // width first, then centre
@@ -63,14 +55,28 @@ function wrapper() {
     {
         var o = [];
         var portals;
+        var sourceTitle;
+        var windowTitle = ' Export From ';
         switch(source) {
             case 'VIEW':
                 portals = window.portals;
+                windowTitle = windowTitle + 'current View';
                 break;
             case 'BKMRK':
                 var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
                 portals = bookmarks.portals.idOthers.bkmrk;
+                windowTitle = windowTitle + 'Bookmarks';
                 break;
+        }
+        if(type === 'GPX')
+        {
+            o.push("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            o.push("<gpx version=\"1.1\" "
+                   +"creator=\"IITC-Multisxporter\" "
+                   +"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                   +"xmlns=\"http://www.topografix.com/GPX/1/1\" "
+                   +"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\""
+                   +">");
         }
         for(var i in portals){
             var keys = 0;
@@ -94,49 +100,38 @@ function wrapper() {
                     }
                     break;
             }
-            o.push(name + ";https://www.ingress.com/intel?ll=" + latlng + "&z=18&pll=" + latlng + ";" + keys);
-        }
-
-        var dialog = window.dialog({
-            title: "Maxfields Export from Bookmarks",
-            dialogClass: 'ui-dialog-maxfieldexport',
-            html: '<span>Use the list bellow as input for maxfields.</span>'
-            + '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
-            + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
-        }).parent();
-
-        dialog.css("width", 630).css({
-            "top": ($(window).height() - dialog.height()) / 2,
-            "left": ($(window).width() - dialog.width()) / 2
-        });
-
-        $("#idmExport").val(o.join("\n"));
-
-        return dialog;
-    };
-
-    /*********** MAX FIELD on BOOKMARK ********************************************/
-    //TODO menu to chuse bookmarks
-    window.plugin.maxfields = function()
-    {
-        var o = [];
-        var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
-        for(var i in bookmarks.portals.idOthers.bkmrk)
-        {
-            var name = bookmarks.portals.idOthers.bkmrk[i].label;
-            var gpscoord = bookmarks.portals.idOthers.bkmrk[i].latlng;
-            var keys = 0;
-            if(plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid]){
-                keys = plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid];
+            switch(type){
+                case 'MF':
+                    o.push(name + ";https://www.ingress.com/intel?ll=" + latlng + "&z=18&pll=" + latlng + ";" + keys);
+                    break;
+                case 'CSV':
+                    o.push("\"" + name + "\"," + latlng.split(',')[0] + "," + latlng.split(',')[1]);
+                    break;
+                case 'GPX':
+                    lat = latlng.split(',')[0];
+                    lng = latlng.split(',')[1];
+                    iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
+                    gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
+                    o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
+                           +"<name>" + name + "</name>"
+                           +"<desc>" + "Intel: " + iitcLink + "\n"
+                           + "GMap: " + gmapLink + "\n"
+                           +"</desc>\n"
+                           +"</wpt>"
+                          );
+                    break;
             }
-            o.push(name + ";https://www.ingress.com/intel?ll=" + gpscoord + "&z=18&pll=" + gpscoord + ";" + keys);
+        }
+        if(type === 'GPX')
+        {
+            o.push("</gpx>");
         }
 
+
         var dialog = window.dialog({
-            title: "Maxfields Export from Bookmarks",
+            title: windowTitle,
             dialogClass: 'ui-dialog-maxfieldexport',
-            html: '<span>Use the list bellow as input for maxfields.</span>'
-            + '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
+            html: '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
             + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
         }).parent();
 
@@ -150,98 +145,6 @@ function wrapper() {
         return dialog;
     };
 
-    /*********** GPX on Map *******************************************************/
-    //TODO max lat lng in header?
-    //TODO time stemp
-    window.plugin.gpxexport = function() {
-        var o = [];
-        o.push("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        o.push("<gpx version=\"1.1\" "
-               +"creator=\"IITC-Multisxporter\" "
-               +"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-               +"xmlns=\"http://www.topografix.com/GPX/1/1\" "
-               +"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\""
-               +">");
-        o.push("<metadata>");
-        //o-oush("<name> \"Ingress Portal Map\"</name>");
-        o.push("<link href=\"https://ingress.com/intel\"></link>");
-        //o.push("<time>" + getFormattedDate() + "</time>");
-        o.push("</metadata>");
-        for (var x in window.portals)
-        {
-            var p = window.portals[x];
-            var b = window.map.getBounds();
-
-            // skip if not currently visible
-            if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
-
-            // Microdegrees conversion - added by trefmanic
-            lat = p._latlng.lat;
-            lng = p._latlng.lng;
-            name = p.options.data.title;
-            iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
-            gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
-
-            o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
-                   +"<name>" + name + "</name>"
-                   +"<desc>" + "Lat/Lon: " + lat + " " + lng + "\n"
-                   + "Intel: " + iitcLink + "\n"
-                   + "GMap: " + gmapLink + "\n"
-                   +"</desc>\n"
-                   +"<link href=\"" + iitcLink + "\"></link>\n"
-                   +"</wpt>"
-                  );
-        }
-        o.push("</gpx>");
-
-        var dialog = window.dialog({
-            title: "GPX Export from Map",
-            dialogClass: 'ui-dialog-gpxexport',
-            html: '<span>Save the list below as a GPX file.</span>'
-            + '<textarea readonly id="idmExport" style="width: 600px; height: '+ ($(window).height() /2) + 'px; margin-top: 5px;"></textarea>'
-            + '<p><a onclick="$(\'.ui-dialog-gpxexport textarea\').select();">Select all</a></p>'
-        }).parent();
-
-        dialog.css("width", 630).css({
-            "top": ($(window).height() - dialog.height()) / 2,
-            "left": ($(window).width() - dialog.width()) / 2
-        });
-
-        $("#idmExport").val(o.join("\n"));
-
-        return dialog;
-    };
-
-    /*********** CSV on Map *******************************************************/
-    window.plugin.csvexport = function() {
-        var o = [];
-        for (var x in window.portals) {
-            var p = window.portals[x];
-            var b = window.map.getBounds();
-            // skip if not currently visible
-            if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng
-                || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
-            // Microdegrees conversion - added by trefmanic
-            o.push("\"" + p.options.data.title + "\"," + p._latlng.lat + "," + p._latlng.lng);
-        }
-
-        var dialog = window.dialog({
-            title: "Ingress CSV export from Map",
-            dialogClass: 'ui-dialog-csvexport',
-            html: '<span>Save the list below as a CSV file.</span>'
-            + '<textarea readonly id="idmGPXExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
-            + '<p><a onclick="$(\'.ui-dialog-csvexport textarea\').select();">Select all</a></p>'
-        }).parent();
-
-        dialog.css("width", 630).css({
-            "top": ($(window).height() - dialog.height()) / 2,
-            "left": ($(window).width() - dialog.width()) / 2
-        });
-
-        $("#idmGPXExport").val(o.join("\n"));
-
-        return dialog;
-    };
 
     /*********** PLUGIN SETUP *****************************************************/
     // setup function called by IITC
