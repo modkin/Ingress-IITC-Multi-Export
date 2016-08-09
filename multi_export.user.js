@@ -29,20 +29,21 @@ function wrapper() {
     }
 
 
-/*********** MENUE ************************************************************/
+    /*********** MENUE ************************************************************/
     window.plugin.createmenu = function() {
         window.dialog({
             title: "Multi Export Options",
             html: '<div class="multiExportSetbox">'
             + "<a onclick=\"window.plugin.gpxexport();\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
             + "<a onclick=\"window.plugin.csvexport();\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
+            + "<a onclick=\"window.plugin.export('CSV','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>"
             + "<a onclick=\"window.plugin.maxfields();\" title=\"Generate a list of portals and locations for use with maxfield\">Maxfields Export from Bookmarks</a>"
             + "</div>"
         }).parent();
         // width first, then centre
     };
-    
-/*********** BOOKMARK MENUE ****************************************************/
+
+    /*********** BOOKMARK MENUE ****************************************************/
     window.plugin.createbkmrkmenu = function() {
         var htmlcontent = '<div class="multiExportSetbox">';
         var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
@@ -57,7 +58,64 @@ function wrapper() {
         // width first, then centre
     };
 
-/*********** MAX FIELD on BOOKMARK ********************************************/
+    /*********** ABSTRACT EXPORT FUNCTION ******************************************/
+    window.plugin.export = function(type, source)
+    {
+        var o = [];
+        var portals;
+        switch(source) {
+            case 'VIEW':
+                portals = window.portals;
+                break;
+            case 'BKMRK':
+                var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
+                portals = bookmarks.portals.idOthers.bkmrk;
+                break;
+        }
+        for(var i in portals){
+            var keys = 0;
+            switch(source) {
+                case 'VIEW':
+                    var p = window.portals[i];
+                    var name = p.options.data.title;
+                    var latlng = p._latlng.lat + ',' +  p._latlng.lng;
+                    if(plugin.keys.keys[i]){
+                        keys = plugin.keys.keys[i];
+                    }
+                    var b = window.map.getBounds();
+                    // skip if not currently visible
+                    if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
+                    break;
+                case 'BKMRK':
+                    var name = bookmarks.portals.idOthers.bkmrk[i].label;
+                    var latlng = bookmarks.portals.idOthers.bkmrk[i].latlng;
+                    if(plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid]){
+                        keys = plugin.keys.keys[bookmarks.portals.idOthers.bkmrk[i].guid];
+                    }
+                    break;
+            }
+            o.push(name + ";https://www.ingress.com/intel?ll=" + latlng + "&z=18&pll=" + latlng + ";" + keys);
+        }
+
+        var dialog = window.dialog({
+            title: "Maxfields Export from Bookmarks",
+            dialogClass: 'ui-dialog-maxfieldexport',
+            html: '<span>Use the list bellow as input for maxfields.</span>'
+            + '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
+            + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
+        }).parent();
+
+        dialog.css("width", 630).css({
+            "top": ($(window).height() - dialog.height()) / 2,
+            "left": ($(window).width() - dialog.width()) / 2
+        });
+
+        $("#idmExport").val(o.join("\n"));
+
+        return dialog;
+    };
+
+    /*********** MAX FIELD on BOOKMARK ********************************************/
     //TODO menu to chuse bookmarks
     window.plugin.maxfields = function()
     {
@@ -78,8 +136,8 @@ function wrapper() {
             title: "Maxfields Export from Bookmarks",
             dialogClass: 'ui-dialog-maxfieldexport',
             html: '<span>Use the list bellow as input for maxfields.</span>'
-                + '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
-                + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
+            + '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
+            + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
         }).parent();
 
         dialog.css("width", 630).css({
@@ -92,7 +150,7 @@ function wrapper() {
         return dialog;
     };
 
-/*********** GPX on Map *******************************************************/
+    /*********** GPX on Map *******************************************************/
     //TODO max lat lng in header?
     //TODO time stemp
     window.plugin.gpxexport = function() {
@@ -125,14 +183,14 @@ function wrapper() {
             gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
 
             o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
-                    +"<name>" + name + "</name>"
-                    +"<desc>" + "Lat/Lon: " + lat + " " + lng + "\n"
-                              + "Intel: " + iitcLink + "\n"
-                              + "GMap: " + gmapLink + "\n"
-                    +"</desc>\n"
-                    +"<link href=\"" + iitcLink + "\"></link>\n"
-                  +"</wpt>"
-                 );
+                   +"<name>" + name + "</name>"
+                   +"<desc>" + "Lat/Lon: " + lat + " " + lng + "\n"
+                   + "Intel: " + iitcLink + "\n"
+                   + "GMap: " + gmapLink + "\n"
+                   +"</desc>\n"
+                   +"<link href=\"" + iitcLink + "\"></link>\n"
+                   +"</wpt>"
+                  );
         }
         o.push("</gpx>");
 
@@ -140,8 +198,8 @@ function wrapper() {
             title: "GPX Export from Map",
             dialogClass: 'ui-dialog-gpxexport',
             html: '<span>Save the list below as a GPX file.</span>'
-                + '<textarea readonly id="idmExport" style="width: 600px; height: '+ ($(window).height() /2) + 'px; margin-top: 5px;"></textarea>'
-                + '<p><a onclick="$(\'.ui-dialog-gpxexport textarea\').select();">Select all</a></p>'
+            + '<textarea readonly id="idmExport" style="width: 600px; height: '+ ($(window).height() /2) + 'px; margin-top: 5px;"></textarea>'
+            + '<p><a onclick="$(\'.ui-dialog-gpxexport textarea\').select();">Select all</a></p>'
         }).parent();
 
         dialog.css("width", 630).css({
@@ -154,7 +212,7 @@ function wrapper() {
         return dialog;
     };
 
-/*********** CSV on Map *******************************************************/
+    /*********** CSV on Map *******************************************************/
     window.plugin.csvexport = function() {
         var o = [];
         for (var x in window.portals) {
@@ -171,8 +229,8 @@ function wrapper() {
             title: "Ingress CSV export from Map",
             dialogClass: 'ui-dialog-csvexport',
             html: '<span>Save the list below as a CSV file.</span>'
-                + '<textarea readonly id="idmGPXExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
-                + '<p><a onclick="$(\'.ui-dialog-csvexport textarea\').select();">Select all</a></p>'
+            + '<textarea readonly id="idmGPXExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
+            + '<p><a onclick="$(\'.ui-dialog-csvexport textarea\').select();">Select all</a></p>'
         }).parent();
 
         dialog.css("width", 630).css({
@@ -185,7 +243,7 @@ function wrapper() {
         return dialog;
     };
 
-/*********** PLUGIN SETUP *****************************************************/
+    /*********** PLUGIN SETUP *****************************************************/
     // setup function called by IITC
     self.setup = function init() {
         // add controls to toolbox
