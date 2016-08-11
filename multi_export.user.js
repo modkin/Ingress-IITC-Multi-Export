@@ -79,6 +79,10 @@ function wrapper() {
                    +"xmlns=\"http://www.topografix.com/GPX/1/1\" "
                    +"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\""
                    +">");
+            o.push("<metadata>"
+                   +"<link href=\"https://ingress.com/intel\"></link>"
+                   +"</metadata>"
+                   );
         }
         for(var i in portals){
             var keys = 0;
@@ -116,9 +120,11 @@ function wrapper() {
                     gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
                     o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
                            +"<name>" + name + "</name>"
-                           +"<desc>" + "Intel: " + iitcLink + "\n"
+                           +"<desc>" + "Lat/Lon: " + lat + "," + lng + "\n"
+                           + "Intel: " + iitcLink + "\n"
                            + "GMap: " + gmapLink + "\n"
                            +"</desc>\n"
+                           +"<link href=\"" + iitcLink + "\"></link>\n"
                            +"</wpt>"
                           );
                     break;
