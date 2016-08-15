@@ -32,7 +32,6 @@ function wrapper() {
             + "<a onclick=\"window.plugin.bkmrkmenu('MF');\" title=\"Generate a list of portals for use with maxfield from Bookmarks\">Maxfield Export from Bookmarks</a>"
             + "</div>"
         }).parent();
-        // width first, then centre
     };
 
     /*********** BOOKMARK MENUE ****************************************************/
@@ -48,7 +47,6 @@ function wrapper() {
             title: "Multi Export Options",
             html: htmlcontent
         }).parent();
-        // width first, then centre
     };
 
     /*********** ABSTRACT EXPORT FUNCTION ******************************************/
