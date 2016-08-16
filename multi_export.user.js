@@ -110,7 +110,7 @@ function wrapper() {
                 case 'BKMRK':
                     var name = bookmarks.portals[bkmrkFolder].bkmrk[i].label;
                     var latlng = bookmarks.portals[bkmrkFolder].bkmrk[i].latlng;
-                    if(plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid]){
+                    if(plugin.keys && plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid]){
                         keys = plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid];
                     }
                     break;
