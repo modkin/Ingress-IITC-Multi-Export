@@ -1,5 +1,5 @@
 // ==UserScript==
-// @id             iitc-plugin-multi-export
+// @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
 // @version        0.1
