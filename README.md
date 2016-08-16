@@ -1,4 +1,4 @@
-# Ingress-IITC-Multi-Export
+# Ingress IITC Portal Multi Export
 This is a plugin to export portals to different formats.
 
 ## Features
