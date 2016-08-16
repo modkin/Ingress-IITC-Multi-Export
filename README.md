@@ -9,9 +9,8 @@ As formats we currently got: GPX, CSV and export for Maxfield
 (check out http://www.ingress-maxfield.com/ for information abour Maxfield)
 
 ## Requirements
-IITC needs to be installed.
-See this page for information:
-http://iitc.jonatkins.com/
+IITC needs to be installed. See this page for information: http://iitc.jonatkins.com/
+Additonally the "Bookmarks for maps and portals" and "Keys" plugin are needed for full functionality but the plugin also runs without them
 
 ## Install
 For installation just click on this link:
