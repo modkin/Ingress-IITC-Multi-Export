@@ -1,10 +1,10 @@
 // ==UserScript==
-// @id             iitc-plugin-multie-exporter
-// @name           IITC plugin: Ingress Multi Exporter
+// @id             iitc-plugin-multi-export
+// @name           IITC plugin: Portal Multi Export
 // @category       Misc
 // @version        0.1
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @description    Exports portals information from Bookmarks or from Portals currenntly in few
+// @description    Export portals from bookmarks or current view on map
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
