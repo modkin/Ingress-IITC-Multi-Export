@@ -21,16 +21,20 @@ function wrapper() {
 
     /*********** MENUE ************************************************************/
     window.plugin.createmenu = function() {
+        var htmldata = '<div class="multiExportSetbox">'
+        + "<a onclick=\"window.plugin.export('GPX','VIEW');\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
+        + "<a onclick=\"window.plugin.export('CSV','VIEW');\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
+        + "<a onclick=\"window.plugin.export('MF','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>";
+        if(plugin.bookmarks)
+        {
+            htmldata += "<a onclick=\"window.plugin.bkmrkmenu('GPX');\" title=\"Generate a GPX list of portals from Bookmarks\">GPX Export from Bookmarks</a>"
+                + "<a onclick=\"window.plugin.bkmrkmenu('CSV');\" title=\"Generate a CSV list of portals from Bookmarks\">CSV Export from Bookmarks</a>"
+                + "<a onclick=\"window.plugin.bkmrkmenu('MF');\" title=\"Generate a list of portals for use with maxfield from Bookmarks\">Maxfield Export from Bookmarks</a>";
+        }
+        htmldata += "</div>";
         window.dialog({
             title: "Multi Export Options",
-            html: '<div class="multiExportSetbox">'
-            + "<a onclick=\"window.plugin.export('GPX','VIEW');\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
-            + "<a onclick=\"window.plugin.export('CSV','VIEW');\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
-            + "<a onclick=\"window.plugin.export('MF','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>"
-            + "<a onclick=\"window.plugin.bkmrkmenu('GPX');\" title=\"Generate a GPX list of portals from Bookmarks\">GPX Export from Bookmarks</a>"
-            + "<a onclick=\"window.plugin.bkmrkmenu('CSV');\" title=\"Generate a CSV list of portals from Bookmarks\">CSV Export from Bookmarks</a>"
-            + "<a onclick=\"window.plugin.bkmrkmenu('MF');\" title=\"Generate a list of portals for use with maxfield from Bookmarks\">Maxfield Export from Bookmarks</a>"
-            + "</div>"
+            html: htmldata
         }).parent();
     };
 
@@ -40,7 +44,7 @@ function wrapper() {
         var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
         for(var i in bookmarks.portals){
             htmlcontent += "<a onclick=\"window.plugin.export('" +type+"','BKMRK','"+i+"');\""
-            + "title=\"Generate GPX list\">" + bookmarks.portals[i].label + "</a>";
+                + "title=\"Generate GPX list\">" + bookmarks.portals[i].label + "</a>";
         }
         htmlcontent += '</div>';
         window.dialog({
@@ -56,11 +60,17 @@ function wrapper() {
         var o = [];
         var portals;
         var sourceTitle;
-        var windowTitle = ' Export From ';
+        var windowTitle;
+        if(type === 'MF')
+        {
+            windowTitle = 'Maxfield Export From ';
+        } else {
+            windowTitle = type + ' Export From ';
+        }
         switch(source) {
             case 'VIEW':
                 portals = window.portals;
-                windowTitle = windowTitle + 'current View';
+                windowTitle = windowTitle + 'Current View';
                 break;
             case 'BKMRK':
                 var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
@@ -80,7 +90,7 @@ function wrapper() {
             o.push("<metadata>"
                    +"<link href=\"https://ingress.com/intel\"></link>"
                    +"</metadata>"
-                   );
+                  );
         }
         for(var i in portals){
             var keys = 0;
@@ -89,7 +99,8 @@ function wrapper() {
                     var p = window.portals[i];
                     var name = p.options.data.title;
                     var latlng = p._latlng.lat + ',' +  p._latlng.lng;
-                    if(plugin.keys.keys[i]){
+                    //ensure if keys plugin is enabled and check whether keys are stored
+                    if(plugin.keys && plugin.keys.keys[i]){
                         keys = plugin.keys.keys[i];
                     }
                     var b = window.map.getBounds();
