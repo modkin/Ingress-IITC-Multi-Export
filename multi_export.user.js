@@ -25,6 +25,12 @@ function wrapper() {
         + "<a onclick=\"window.plugin.export('GPX','VIEW');\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
         + "<a onclick=\"window.plugin.export('CSV','VIEW');\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
         + "<a onclick=\"window.plugin.export('MF','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>";
+        if(plugin.drawTools)
+        {
+            htmldata += "<a onclick=\"window.plugin.export('GPX','VIEWFIL');\" title=\"Generate a GPX list of portals and location\">GPX Export inside Polygon</a>"
+            + "<a onclick=\"window.plugin.export('CSV','VIEWFIL');\" title=\"Generate a CSV list of portals and locations\">CSV Export inside Polygon</a>"
+            + "<a onclick=\"window.plugin.export('MF','VIEWFIL');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export inside Polygon</a>"
+        }
         if(plugin.bookmarks)
         {
             htmldata += "<a onclick=\"window.plugin.bkmrkmenu('GPX');\" title=\"Generate a GPX list of portals from Bookmarks\">GPX Export from Bookmarks</a>"
@@ -36,6 +42,26 @@ function wrapper() {
             title: "Multi Export Options",
             html: htmldata
         }).parent();
+    };
+
+    /*********** HELPER FUNCTION ****************************************************/
+    portalInPolygon = function(portal,LatLngsObjectsArray)
+    {
+        var portalCoords = portal.split(',');
+
+        var x = portalCoords[0], y = portalCoords[1];
+
+        var inside = false;
+        for (var i = 0, j = LatLngsObjectsArray.length - 1; i < LatLngsObjectsArray.length; j = i++) {
+            var xi = LatLngsObjectsArray[i]['lat'], yi = LatLngsObjectsArray[i]['lng'];
+            var xj = LatLngsObjectsArray[j]['lat'], yj = LatLngsObjectsArray[j]['lng'];
+
+            var intersect = ((yi > y) != (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+
+        return inside;
     };
 
     /*********** BOOKMARK MENUE ****************************************************/
@@ -67,16 +93,15 @@ function wrapper() {
         } else {
             windowTitle = type + ' Export From ';
         }
-        switch(source) {
-            case 'VIEW':
-                portals = window.portals;
-                windowTitle = windowTitle + 'Current View';
-                break;
-            case 'BKMRK':
-                var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
-                portals = bookmarks.portals[bkmrkFolder].bkmrk;
-                windowTitle = windowTitle + 'Bookmarks';
-                break;
+        var drawLayer = JSON.parse(localStorage['plugin-draw-tools-layer']);
+        if(source == 'BKMRK') {
+            var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
+            portals = bookmarks.portals[bkmrkFolder].bkmrk;
+            windowTitle = windowTitle + 'Bookmarks';
+
+        } else {
+            portals = window.portals;
+            windowTitle = windowTitle + 'current View';
         }
         if(type === 'GPX')
         {
@@ -92,28 +117,35 @@ function wrapper() {
                    +"</metadata>"
                   );
         }
+        portalLoop:
         for(var i in portals){
             var keys = 0;
-            switch(source) {
-                case 'VIEW':
-                    var p = window.portals[i];
-                    var name = p.options.data.title;
-                    var latlng = p._latlng.lat + ',' +  p._latlng.lng;
-                    //ensure if keys plugin is enabled and check whether keys are stored
-                    if(plugin.keys && plugin.keys.keys[i]){
-                        keys = plugin.keys.keys[i];
+            if(source === 'BKMRK'){
+                var name = bookmarks.portals[bkmrkFolder].bkmrk[i].label;
+                var latlng = bookmarks.portals[bkmrkFolder].bkmrk[i].latlng;
+                if(plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid]){
+                    keys = plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid];
+                }
+            }else{
+                var p = window.portals[i];
+                var name = p.options.data.title;
+                var latlng = p._latlng.lat + ',' +  p._latlng.lng;
+                if(source === 'VIEWFIL'){
+                    for(var dl in drawLayer){
+                        if(drawLayer[dl].type === 'polygon'){
+                            console.log(latlng);
+                            console.log(drawLayer[dl]);
+                            if(!portalInPolygon(latlng,drawLayer[dl].latLngs)) continue portalLoop;
+                        }
                     }
-                    var b = window.map.getBounds();
-                    // skip if not currently visible
-                    if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
-                    break;
-                case 'BKMRK':
-                    var name = bookmarks.portals[bkmrkFolder].bkmrk[i].label;
-                    var latlng = bookmarks.portals[bkmrkFolder].bkmrk[i].latlng;
-                    if(plugin.keys && plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid]){
-                        keys = plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid];
-                    }
-                    break;
+                }
+
+                if(plugin.keys.keys[i]){
+                    keys = plugin.keys.keys[i];
+                }
+                var b = window.map.getBounds();
+                // skip if not currently visible
+                if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
             }
             switch(type){
                 case 'MF':
