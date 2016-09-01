@@ -28,8 +28,8 @@ function wrapper() {
         if(plugin.drawTools)
         {
             htmldata += "<a onclick=\"window.plugin.export('GPX','VIEWFIL');\" title=\"Generate a GPX list of portals and location\">GPX Export inside Polygon</a>"
-            + "<a onclick=\"window.plugin.export('CSV','VIEWFIL');\" title=\"Generate a CSV list of portals and locations\">CSV Export inside Polygon</a>"
-            + "<a onclick=\"window.plugin.export('MF','VIEWFIL');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export inside Polygon</a>"
+                + "<a onclick=\"window.plugin.export('CSV','VIEWFIL');\" title=\"Generate a CSV list of portals and locations\">CSV Export inside Polygon</a>"
+                + "<a onclick=\"window.plugin.export('MF','VIEWFIL');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export inside Polygon</a>";
         }
         if(plugin.bookmarks)
         {
@@ -93,7 +93,10 @@ function wrapper() {
         } else {
             windowTitle = type + ' Export From ';
         }
-        var drawLayer = JSON.parse(localStorage['plugin-draw-tools-layer']);
+        if(localStorage['plugin-draw-tools-layer'])
+        {
+            var drawLayer = JSON.parse(localStorage['plugin-draw-tools-layer']);
+        }
         if(source == 'BKMRK') {
             var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
             portals = bookmarks.portals[bkmrkFolder].bkmrk;
