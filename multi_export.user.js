@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
-// @version        0.2
+// @version        0.3
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @description    Export portals from bookmarks, current view or polygon
 // @include        https://www.ingress.com/intel*
