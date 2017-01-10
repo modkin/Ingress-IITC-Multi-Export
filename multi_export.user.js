@@ -202,7 +202,7 @@ function wrapper() {
     // setup function called by IITC
     self.setup = function init() {
         // add controls to toolbox
-        $("#toolbox").append("<a onclick=\"window.plugin.createmenu();\" title=\"Export the current visible portals\">Multi Export</a>");
+        $("#toolbox").append("<a onclick=\"window.plugin.createmenu();\" title=\"Export the currently visible portals\">Multi Export</a>");
         $('head').append('<style>' +
                          '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+
                          '</style>');
