@@ -4,7 +4,7 @@
 // @category       Misc
 // @version        0.2
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @description    Export portals from bookmarks or current view on map
+// @description    Export portals from bookmarks, current view or polygon
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
