@@ -2,7 +2,7 @@
 This is a plugin to export portals to different formats.
 
 ## Features
-At the moment we support export of all portals in the current view and bookmarked portals by folders
+At the moment we support export of all portals in the current view, bookmarked portals by folders and portals inside a polygon
 
 As formats we currently got: GPX, CSV and export for Maxfield
 
