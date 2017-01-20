@@ -152,18 +152,18 @@ function wrapper() {
                 // skip if not currently visible
                 if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
             }
+            iitcLink = "https://www.ingress.com/intel?ll=" + latlng + "&amp;z=18&amp;pll=" + latlng;
+            gmapLink = "http://maps.google.com/?ll=" + latlng + "&amp;q=" + latlng;
             switch(type){
                 case 'MF':
-                    o.push(name + ";https://www.ingress.com/intel?ll=" + latlng + "&z=18&pll=" + latlng + ";" + keys);
+                    o.push(name + ";" + iitcLink + ";" + keys);
                     break;
                 case 'CSV':
-                    o.push("\"" + name + "\"," + latlng.split(',')[0] + "," + latlng.split(',')[1]);
+                    o.push("\"" + name + "\"," + latlng.split(',')[0] + "," + latlng.split(',')[1] + "," + iitcLink + "," + gmapLink);
                     break;
                 case 'GPX':
                     lat = latlng.split(',')[0];
                     lng = latlng.split(',')[1];
-                    iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
-                    gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
                     o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
                            +"<name>" + name + "</name>"
                            +"<desc>" + "Lat/Lon: " + lat + "," + lng + "\n"
