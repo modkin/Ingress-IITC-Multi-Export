@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
-// @version        0.3
+// @version        0.4
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
 // @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
@@ -152,8 +152,8 @@ function wrapper() {
                 // skip if not currently visible
                 if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
             }
-            iitcLink = "https://www.ingress.com/intel?ll=" + latlng + "&amp;z=18&amp;pll=" + latlng;
-            gmapLink = "http://maps.google.com/?ll=" + latlng + "&amp;q=" + latlng;
+            var iitcLink = "https://www.ingress.com/intel?ll=" + latlng + "&amp;z=18&amp;pll=" + latlng;
+            var gmapLink = "http://maps.google.com/?ll=" + latlng + "&amp;q=" + latlng;
             switch(type){
                 case 'MF':
                     o.push(name + ";" + iitcLink + ";" + keys);
