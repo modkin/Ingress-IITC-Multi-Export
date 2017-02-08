@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
-// @version        0.6
+// @version        0.8
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
 // @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
@@ -30,19 +30,21 @@ function wrapper(plugin_info) {
         var htmldata = "<p> Export from <b> Current View </b>, <b> inside Polygon </b> or <b> Bookmarks </b> to various formats by clicking the corresponding cell in the table. </p>"
         + "<p> Please note that the first drawn polygon will be choosen to export from. </p>"
         +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> JSON </th> </tr>"
+        + "<p> <b> BE AWARE: </b> If you choose <b> BKMRK </b> all portals will be added to the default bookmarks folder. </p>"
+        +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> JSON </th> <th> BKMRK </th> </tr>"
         + "<tr> <th> Current View </th>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title='Export Current View to CSV'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEW');\" title='Export Current View to GPX'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEW');\" title='Export Current View to Maxfield'>XXX</a> </td>"
-        + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK' ,'VIEW');\" title='Export Current View to BKMRK'>XXX</a> </td>"
+        + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEW');\" title='Export Current View to Bookmarks'>XXX</a> </td>"
         + "</tr>";
         if(plugin.drawTools)
         {
-            htmldata += "<tr> <th> Inside Polygon </th>"
+            htmldata += "<tr> <th> Polygon </th>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEWFIL');\" title='Export Polygon to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEWFIL');\" title='Export Polygon to GPX'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEWFIL');\" title='Export Polygon to Maxfield'>XXX</a> </td>"
-                + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK' ,'VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>"
+                + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>"
                 + "</tr>";
         }
         if(plugin.bookmarks)
@@ -195,7 +197,9 @@ function wrapper(plugin_info) {
                     o.push("},");
                     break;
                 case 'BKMRK':
-                    plugin.bookmarks.addPortalBookmark(guid, latlng, name);
+                    if(!window.plugin.bookmarks.findByGuid(guid)){
+                        plugin.bookmarks.addPortalBookmark(guid, latlng, name);
+                    }
                     break;
             }
         }
@@ -236,7 +240,11 @@ function wrapper(plugin_info) {
     var setup = function() {
         $("#toolbox").append("<a onclick=\"window.plugin.multiexport.createmenu();\" title=\"Export the currently visible portals\">Multi Export</a>");
         $('head').append('<style>' +
+<<<<<<< HEAD
                          '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:650px; text-align:center; background:rgba(8,48,78,.9); }'+
+=======
+                         '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:100%; text-align:center; background:rgba(8,48,78,.9); }'+
+>>>>>>> origin/master
                          'table.multiexporttabel { border: 1px solid #ffce00; text-align:center;} ' +
                          'table.multiexporttabel td { border: 1px solid; text-align:center; width: 15%; table-layout: fixed;} ' +
                          '</style>');
