@@ -27,30 +27,6 @@ function wrapper(plugin_info) {
 
     /*********** MENUE ************************************************************/
     window.plugin.multiexport.createmenu = function() {
-        var htmldata = '<div class="multiExportSetbox">'
-        + "<a onclick=\"window.plugin.multiexport.export('GPX','VIEW');\" title=\"Generate a GPX list of portals and location\">GPX Export from Map</a>"
-        + "<a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title=\"Generate a CSV list of portals and locations\">CSV Export from Map</a>"
-        + "<a onclick=\"window.plugin.multiexport.export('MF','VIEW');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export from Map</a>";
-        if(plugin.drawTools)
-        {
-            htmldata += "<a onclick=\"window.plugin.multiexport.export('GPX','VIEWFIL');\" title=\"Generate a GPX list of portals and location\">GPX Export inside Polygon</a>"
-                + "<a onclick=\"window.plugin.multiexport.export('CSV','VIEWFIL');\" title=\"Generate a CSV list of portals and locations\">CSV Export inside Polygon</a>"
-                + "<a onclick=\"window.plugin.multiexport.export('MF','VIEWFIL');\" title=\"Generate a list of portals for use with maxfield from current View\">Maxfield Export inside Polygon</a>";
-        }
-        if(plugin.bookmarks)
-        {
-            htmldata += "<a onclick=\"window.plugin.multiexport.bkmrkmenu('GPX');\" title=\"Generate a GPX list of portals from Bookmarks\">GPX Export from Bookmarks</a>"
-                + "<a onclick=\"window.plugin.multiexport.bkmrkmenu('CSV');\" title=\"Generate a CSV list of portals from Bookmarks\">CSV Export from Bookmarks</a>"
-                + "<a onclick=\"window.plugin.multiexport.bkmrkmenu('MF');\" title=\"Generate a list of portals for use with maxfield from Bookmarks\">Maxfield Export from Bookmarks</a>";
-        }
-        htmldata += "</div>";
-
-        dialog({
-            title: "Multi Export Options",
-            html: htmldata
-        });
-    };
-    window.plugin.multiexport.createmenutab = function() {
         var htmldata = "<p> Export from <b> Current View </b>, <b> inside Polygon </b> or <b> Bookmarks </b> to various formats by clicking the corresponding cell in the table. </p>"
         + "<p> Please note that the first drawn polygon will be choosen to export from. </p>"
         +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield <th> </tr>"
@@ -170,8 +146,6 @@ function wrapper(plugin_info) {
                 if(source === 'VIEWFIL'){
                     for(var dl in drawLayer){
                         if(drawLayer[dl].type === 'polygon'){
-                            console.log(latlng);
-                            console.log(drawLayer[dl]);
                             if(!window.plugin.multiexport.portalinpolygon(latlng,drawLayer[dl].latLngs)) continue portalLoop;
                         }
                     }
@@ -208,16 +182,17 @@ function wrapper(plugin_info) {
                     break;
             }
         }
+        var ostr = o.join("\n");
         if(type === 'GPX')
         {
-            o.push("</gpx>");
+            ostr += "</gpx>";
+            ostr = ostr.replace(/[&]/g, '');
         }
-
 
         var dialog = window.dialog({
             title: windowTitle,
             dialogClass: 'ui-dialog-maxfieldexport',
-            html: '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 2) + 'px; margin-top: 5px;"></textarea>'
+            html: '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 3) + 'px; margin-top: 5px;"></textarea>'
             + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
         }).parent();
 
@@ -226,7 +201,7 @@ function wrapper(plugin_info) {
             "left": ($(window).width() - dialog.width()) / 2
         });
 
-        $("#idmExport").val(o.join("\n"));
+        $("#idmExport").val(ostr);
     };
 
 
@@ -234,7 +209,6 @@ function wrapper(plugin_info) {
     // setup function called by IITC
     var setup = function() {
         $("#toolbox").append("<a onclick=\"window.plugin.multiexport.createmenu();\" title=\"Export the currently visible portals\">Multi Export</a>");
-        $("#toolbox").append("<a onclick=\"window.plugin.multiexport.createmenutab();\" title=\"Export the currently visible portals\">Multi Export TAB</a>");
         $('head').append('<style>' +
                          '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+
                          'table.multiexporttabel { border: 1px solid #ffce00; text-align:center;} ' +
