@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
-// @version        0.6
+// @version        0.7
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
 // @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
@@ -29,24 +29,30 @@ function wrapper(plugin_info) {
     window.plugin.multiexport.createmenu = function() {
         var htmldata = "<p> Export from <b> Current View </b>, <b> inside Polygon </b> or <b> Bookmarks </b> to various formats by clicking the corresponding cell in the table. </p>"
         + "<p> Please note that the first drawn polygon will be choosen to export from. </p>"
-        +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield <th> </tr>"
+        + "<p> If you choose <b> BKMRK </b> all portals will be added to the standard bookmarks folder. </p>"
+        +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> BKMRK </th> </tr>"
         + "<tr> <th> Current View </th>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title='Export Current View to CSV'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEW');\" title='Export Current View to GPX'>XXX</a> </td>"
-        + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEW');\" title='Export Current View to Maxfield'>XXX</a> </td>";
+        + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEW');\" title='Export Current View to Maxfield'>XXX</a> </td>"
+        + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK' ,'VIEW');\" title='Export Current View to Bookmarks'>XXX</a> </td>"
+        + "</tr>";
         if(plugin.drawTools)
         {
-            htmldata += "<tr> <th> Inside Polygon </th>"
+            htmldata += "<tr> <th> Polygon </th>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEWFIL');\" title='Export Polygon to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEWFIL');\" title='Export Polygon to GPX'>XXX</a> </td>"
-                + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEWFIL');\" title='Export Polygon to Maxfield'>XXX</a> </td>";
+                + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEWFIL');\" title='Export Polygon to Maxfield'>XXX</a> </td>"
+                + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK' ,'VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>"
+                + "</tr>";
         }
         if(plugin.bookmarks)
         {
             htmldata += "<tr> <th> Bookmarks </th>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('CSV');\" title='Export Bookmarks to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('GPX');\" title='Export Bookmarks to GPX'>XXX</a> </td>"
-                + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('MF' );\" title='Export Bookmarks to Maxfield'>XXX</a> </td>";
+                + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('MF' );\" title='Export Bookmarks to Maxfield'>XXX</a> </td>"
+                + "</tr>";
         }
         dialog({
             title: "Multi Export Options",
@@ -99,9 +105,9 @@ function wrapper(plugin_info) {
         var windowTitle;
         if(type === 'MF')
         {
-            windowTitle = 'Maxfield Export From ';
+            windowTitle = 'Maxfield Export';
         } else {
-            windowTitle = type + ' Export From ';
+            windowTitle = type + ' Export';
         }
         if(localStorage['plugin-draw-tools-layer'])
         {
@@ -110,25 +116,24 @@ function wrapper(plugin_info) {
         if(source == 'BKMRK') {
             var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
             portals = bookmarks.portals[bkmrkFolder].bkmrk;
-            windowTitle = windowTitle + 'Bookmarks';
 
         } else {
             portals = window.portals;
-            windowTitle = windowTitle + 'current View';
         }
-        if(type === 'GPX')
-        {
-            o.push("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            o.push("<gpx version=\"1.1\" "
-                   +"creator=\"IITC-Multisxporter\" "
-                   +"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                   +"xmlns=\"http://www.topografix.com/GPX/1/1\" "
-                   +"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\""
-                   +">");
-            o.push("<metadata>"
-                   +"<link href=\"https://ingress.com/intel\"></link>"
-                   +"</metadata>"
-                  );
+        switch(type){
+            case 'GPX':
+                o.push("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                o.push("<gpx version=\"1.1\" "
+                       +"creator=\"IITC-Multisxporter\" "
+                       +"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                       +"xmlns=\"http://www.topografix.com/GPX/1/1\" "
+                       +"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\""
+                       +">");
+                o.push("<metadata>"
+                       +"<link href=\"https://ingress.com/intel\"></link>"
+                       +"</metadata>"
+                      );
+                break;
         }
         portalLoop:
         for(var i in portals){
@@ -142,6 +147,7 @@ function wrapper(plugin_info) {
             }else{
                 var p = window.portals[i];
                 var name = p.options.data.title;
+                var guid = p.options.guid;
                 var latlng = p._latlng.lat + ',' +  p._latlng.lng;
                 if(source === 'VIEWFIL'){
                     for(var dl in drawLayer){
@@ -158,16 +164,16 @@ function wrapper(plugin_info) {
                 // skip if not currently visible
                 if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
             }
+            lat = latlng.split(',')[0];
+            lng = latlng.split(',')[1];
             switch(type){
                 case 'MF':
                     o.push(name + ";https://www.ingress.com/intel?ll=" + latlng + "&z=18&pll=" + latlng + ";" + keys);
                     break;
                 case 'CSV':
-                    o.push("\"" + name + "\"," + latlng.split(',')[0] + "," + latlng.split(',')[1]);
+                    o.push("\"" + name + "\"," + lat + "," + lng);
                     break;
                 case 'GPX':
-                    lat = latlng.split(',')[0];
-                    lng = latlng.split(',')[1];
                     iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
                     gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
                     o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
@@ -180,13 +186,20 @@ function wrapper(plugin_info) {
                            +"</wpt>"
                           );
                     break;
+                case 'BKMRK':
+                    plugin.bookmarks.addPortalBookmark(guid, latlng, name);
+                    break;
             }
         }
+        if(type == 'BKMRK'){
+            return;
+        }
         var ostr = o.join("\n");
-        if(type === 'GPX')
-        {
-            ostr += "</gpx>";
-            ostr = ostr.replace(/[&]/g, '');
+        switch(type){
+            case 'GPX':
+                ostr += "</gpx>";
+                ostr = ostr.replace(/[&]/g, '');
+                break;
         }
 
         var dialog = window.dialog({
@@ -210,9 +223,9 @@ function wrapper(plugin_info) {
     var setup = function() {
         $("#toolbox").append("<a onclick=\"window.plugin.multiexport.createmenu();\" title=\"Export the currently visible portals\">Multi Export</a>");
         $('head').append('<style>' +
-                         '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+
+                         '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:100%; text-align:center; background:rgba(8,48,78,.9); }'+
                          'table.multiexporttabel { border: 1px solid #ffce00; text-align:center;} ' +
-                         'table.multiexporttabel td { border: 1px solid; text-align:center; width: 20%; table-layout: fixed;} ' +
+                         'table.multiexporttabel td { border: 1px solid; text-align:center; width: 15%; table-layout: fixed;} ' +
                          '</style>');
 
     }
