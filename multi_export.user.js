@@ -240,11 +240,7 @@ function wrapper(plugin_info) {
     var setup = function() {
         $("#toolbox").append("<a onclick=\"window.plugin.multiexport.createmenu();\" title=\"Export the currently visible portals\">Multi Export</a>");
         $('head').append('<style>' +
-<<<<<<< HEAD
-                         '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:650px; text-align:center; background:rgba(8,48,78,.9); }'+
-=======
                          '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:100%; text-align:center; background:rgba(8,48,78,.9); }'+
->>>>>>> origin/master
                          'table.multiexporttabel { border: 1px solid #ffce00; text-align:center;} ' +
                          'table.multiexporttabel td { border: 1px solid; text-align:center; width: 15%; table-layout: fixed;} ' +
                          '</style>');
