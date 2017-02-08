@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
-// @version        0.7
+// @version        0.71
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
 // @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
@@ -35,7 +35,7 @@ function wrapper(plugin_info) {
         + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title='Export Current View to CSV'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEW');\" title='Export Current View to GPX'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEW');\" title='Export Current View to Maxfield'>XXX</a> </td>"
-        + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK' ,'VIEW');\" title='Export Current View to Bookmarks'>XXX</a> </td>"
+        + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEW');\" title='Export Current View to Bookmarks'>XXX</a> </td>"
         + "</tr>";
         if(plugin.drawTools)
         {
@@ -43,7 +43,7 @@ function wrapper(plugin_info) {
                 + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEWFIL');\" title='Export Polygon to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEWFIL');\" title='Export Polygon to GPX'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEWFIL');\" title='Export Polygon to Maxfield'>XXX</a> </td>"
-                + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK' ,'VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>"
+                + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>"
                 + "</tr>";
         }
         if(plugin.bookmarks)
@@ -187,7 +187,9 @@ function wrapper(plugin_info) {
                           );
                     break;
                 case 'BKMRK':
-                    plugin.bookmarks.addPortalBookmark(guid, latlng, name);
+                    if(!window.plugin.bookmarks.findByGuid(guid)){
+                        plugin.bookmarks.addPortalBookmark(guid, latlng, name);
+                    }
                     break;
             }
         }
