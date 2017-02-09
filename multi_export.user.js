@@ -165,7 +165,7 @@ function wrapper(plugin_info) {
                     }
                 }
 
-                if(plugin.keys.keys[i]){
+                if(plugin.keys){
                     keys = plugin.keys.keys[i];
                 }
                 var b = window.map.getBounds();
