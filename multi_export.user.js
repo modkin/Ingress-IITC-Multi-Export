@@ -149,7 +149,7 @@ function wrapper(plugin_info) {
             if(source === 'BKMRK'){
                 var name = bookmarks.portals[bkmrkFolder].bkmrk[i].label;
                 var latlng = bookmarks.portals[bkmrkFolder].bkmrk[i].latlng;
-                if(plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid]){
+                if(plugin.keys){
                     keys = plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid];
                 }
             }else{
