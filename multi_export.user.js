@@ -30,11 +30,12 @@ function wrapper(plugin_info) {
         var htmldata = "<p> Export from <b> Current View </b>, <b> inside Polygon </b> or <b> Bookmarks </b> to various formats by clicking the corresponding cell in the table. </p>"
         + "<p> Please note that the first drawn polygon will be choosen to export from. </p>"
         + "<p> <b> BE AWARE: </b> If you choose <b> BKMRK </b> all portals will be added to the default bookmarks folder. </p>"
-        +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> BKMRK </th> </tr>"
+        +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> JSON </th> <th> BKMRK </th> </tr>"
         + "<tr> <th> Current View </th>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title='Export Current View to CSV'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEW');\" title='Export Current View to GPX'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEW');\" title='Export Current View to Maxfield'>XXX</a> </td>"
+        + "<td> <a onclick=\"window.plugin.multiexport.export('JSON' ,'VIEW');\" title='Export Current View to JSON'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEW');\" title='Export Current View to Bookmarks'>XXX</a> </td>"
         + "</tr>";
         if(plugin.drawTools)
@@ -43,6 +44,7 @@ function wrapper(plugin_info) {
                 + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEWFIL');\" title='Export Polygon to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEWFIL');\" title='Export Polygon to GPX'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEWFIL');\" title='Export Polygon to Maxfield'>XXX</a> </td>"
+                + "<td> <a onclick=\"window.plugin.multiexport.export('JSON' ,'VIEWFIL');\" title='Export Current View to JSON'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>"
                 + "</tr>";
         }
@@ -52,12 +54,16 @@ function wrapper(plugin_info) {
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('CSV');\" title='Export Bookmarks to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('GPX');\" title='Export Bookmarks to GPX'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('MF' );\" title='Export Bookmarks to Maxfield'>XXX</a> </td>"
+                + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('JSON' );\" title='Export Bookmarks to JSON'>XXX</a> </td>"
                 + "</tr>";
         }
-        dialog({
+
+        window.dialog({
             title: "Multi Export Options",
-            html: htmldata
+            html: htmldata,
+            dialogClass: 'ui-dialog-multiExport'
         });
+
     };
 
     /*********** HELPER FUNCTION ****************************************************/
@@ -134,6 +140,8 @@ function wrapper(plugin_info) {
                        +"</metadata>"
                       );
                 break;
+            case 'JSON':
+                o.push("[");
         }
         portalLoop:
         for(var i in portals){
@@ -141,7 +149,7 @@ function wrapper(plugin_info) {
             if(source === 'BKMRK'){
                 var name = bookmarks.portals[bkmrkFolder].bkmrk[i].label;
                 var latlng = bookmarks.portals[bkmrkFolder].bkmrk[i].latlng;
-                if(plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid]){
+                if(plugin.keys){
                     keys = plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid];
                 }
             }else{
@@ -157,7 +165,7 @@ function wrapper(plugin_info) {
                     }
                 }
 
-                if(plugin.keys.keys[i]){
+                if(plugin.keys){
                     keys = plugin.keys.keys[i];
                 }
                 var b = window.map.getBounds();
@@ -186,6 +194,13 @@ function wrapper(plugin_info) {
                            +"</wpt>"
                           );
                     break;
+                case 'JSON':
+                    o.push("{");
+                    o.push("\"title\": \"" + name + "\",");
+                    o.push("\"guid\": \"" + guid + "\",");
+                    o.push("\"latlng\": \"" + latlng + "\"");
+                    o.push("},");
+                    break;
                 case 'BKMRK':
                     if(!window.plugin.bookmarks.findByGuid(guid)){
                         plugin.bookmarks.addPortalBookmark(guid, latlng, name);
@@ -201,6 +216,11 @@ function wrapper(plugin_info) {
             case 'GPX':
                 ostr += "</gpx>";
                 ostr = ostr.replace(/[&]/g, '');
+                break;
+            case 'JSON':
+                //remove the last ","
+                ostr = ostr.slice(0, -1);
+                ostr += "]";
                 break;
         }
 
@@ -228,9 +248,10 @@ function wrapper(plugin_info) {
                          '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:100%; text-align:center; background:rgba(8,48,78,.9); }'+
                          'table.multiexporttabel { border: 1px solid #ffce00; text-align:center;} ' +
                          'table.multiexporttabel td { border: 1px solid; text-align:center; width: 15%; table-layout: fixed;} ' +
+                         '.ui-dialog-multiExport {width: 400px !important}' +
                          '</style>');
 
-    }
+    };
 
     setup.info = plugin_info; //add the script info data to the function as a property
     if(!window.bootPlugins) window.bootPlugins = [];
