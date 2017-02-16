@@ -38,8 +38,7 @@ function wrapper(plugin_info) {
         + "<td> <a onclick=\"window.plugin.multiexport.export('JSON' ,'VIEW');\" title='Export Current View to JSON'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEW');\" title='Export Current View to Bookmarks'>XXX</a> </td>"
         + "</tr>";
-        if(plugin.drawTools)
-        {
+        if(plugin.drawTools) {
             htmldata += "<tr> <th> Polygon </th>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEWFIL');\" title='Export Polygon to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEWFIL');\" title='Export Polygon to GPX'>XXX</a> </td>"
@@ -48,8 +47,7 @@ function wrapper(plugin_info) {
                 + "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>"
                 + "</tr>";
         }
-        if(plugin.bookmarks)
-        {
+        if(plugin.bookmarks) {
             htmldata += "<tr> <th> Bookmarks </th>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('CSV');\" title='Export Bookmarks to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('GPX');\" title='Export Bookmarks to GPX'>XXX</a> </td>"
@@ -67,8 +65,7 @@ function wrapper(plugin_info) {
     };
 
     /*********** HELPER FUNCTION ****************************************************/
-    window.plugin.multiexport.portalinpolygon = function(portal,LatLngsObjectsArray)
-    {
+    window.plugin.multiexport.portalinpolygon = function(portal,LatLngsObjectsArray) {
         var portalCoords = portal.split(',');
 
         var x = portalCoords[0], y = portalCoords[1];
@@ -102,27 +99,23 @@ function wrapper(plugin_info) {
     };
 
     /*********** ABSTRACT EXPORT FUNCTION ******************************************/
-    window.plugin.multiexport.export = function(type, source, bkmrkFolder)
-    {
+    window.plugin.multiexport.export = function(type, source, bkmrkFolder) {
         console.log(type);
         var o = [];
         var portals;
         var sourceTitle;
         var windowTitle;
-        if(type === 'MF')
-        {
+        if(type === 'MF') {
             windowTitle = 'Maxfield Export';
         } else {
             windowTitle = type + ' Export';
         }
-        if(localStorage['plugin-draw-tools-layer'])
-        {
+        if(localStorage['plugin-draw-tools-layer']) {
             var drawLayer = JSON.parse(localStorage['plugin-draw-tools-layer']);
         }
         if(source == 'BKMRK') {
             var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
             portals = bookmarks.portals[bkmrkFolder].bkmrk;
-
         } else {
             portals = window.portals;
         }
