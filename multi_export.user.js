@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
-// @version        0.9
+// @version        0.10
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
 // @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
@@ -29,8 +29,17 @@ function wrapper(plugin_info) {
     window.plugin.multiexport.createmenu = function() {
         var htmldata = "<p> Export from <b> Current View </b>, <b> inside Polygon </b> or <b> Bookmarks </b> to various formats by clicking the corresponding cell in the table. </p>"
         + "<p> Please note that the first drawn polygon will be choosen to export from. </p>"
-        + "<p> <b> BE AWARE: </b> If you choose <b> BKMRK </b> all portals will be added to the default bookmarks folder. </p>"
-        +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> JSON </th> <th> BKMRK </th> </tr>"
+        + "<p> <b> BE AWARE: </b> If you choose <b> BKMRK </b> all portals will be added to the default bookmarks folder. </p>";
+        if (plugin.bookmarksSharer) {
+            htmldata += "<p>BMSH: Export for Bookmark Sharer to paste in your google docs.</p>";
+        }
+        htmldata += "<table class='multiexporttabel'>"
+        + "<thead> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> JSON </th> <th> BKMRK </th>";
+        if (plugin.bookmarksSharer) {
+          htmldata += "<th> BMSH </th>";
+        }
+        htmldata += " </tr> </thead>"
+        + "<tbody>"
         + "<tr> <th> Current View </th>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title='Export Current View to CSV'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEW');\" title='Export Current View to GPX'>XXX</a> </td>"
@@ -38,6 +47,9 @@ function wrapper(plugin_info) {
         + "<td> <a onclick=\"window.plugin.multiexport.export('JSON' ,'VIEW');\" title='Export Current View to JSON'>XXX</a> </td>";
         if(plugin.bookmarks){
             htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEW');\" title='Export Current View to Bookmarks'>XXX</a> </td>";
+        }
+        if (plugin.bookmarksSharer) {
+          htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('BMSH','VIEW');\" title='Export Current View to Bookmark Sharer'>XXX</a> </td>";
         }
         htmldata += "</tr>";
         if(plugin.drawTools) {
@@ -49,6 +61,9 @@ function wrapper(plugin_info) {
             if(plugin.bookmarks){
                 htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('BKMRK','VIEWFIL');\" title='Export Polygon to Bookmarks'>XXX</a> </td>";
             }
+            if (plugin.bookmarksSharer) {
+                htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('BMSH','VIEWFIL' );\" title='Export Polygon to Bookmark Sharer'>XXX</a> </td>";
+            }
             htmldata += "</tr>";
         }
         if(plugin.bookmarks) {
@@ -56,8 +71,12 @@ function wrapper(plugin_info) {
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('CSV');\" title='Export Bookmarks to CSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('GPX');\" title='Export Bookmarks to GPX'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('MF' );\" title='Export Bookmarks to Maxfield'>XXX</a> </td>"
-                + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('JSON' );\" title='Export Bookmarks to JSON'>XXX</a> </td>"
-                + "</tr>";
+                + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('JSON' );\" title='Export Bookmarks to JSON'>XXX</a> </td>";
+            if (plugin.bookmarksSharer) {
+                htmldata += "<td style='border-color: transparent !important;'> <a title='' > </a> </td>"
+                    + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('BMSH' );\" title='Export Bookmarks to Bookmark Sharer'>XXX</a> </td>";
+            }
+            htmldata += "</tr> </tbody>";
         }
 
         window.dialog({
@@ -109,6 +128,7 @@ function wrapper(plugin_info) {
         var portals;
         var sourceTitle;
         var windowTitle;
+        var BMSHfID;
         if(type === 'MF') {
             windowTitle = 'Maxfield Export';
         } else {
@@ -139,6 +159,17 @@ function wrapper(plugin_info) {
                 break;
             case 'JSON':
                 o.push("[");
+                break;
+            case 'BMSH':
+                BMSHfID = window.plugin.bookmarks.generateID();
+                o.push( "FOLDER\t"
+                    + "MultiExporterExportedExport\t"
+                    + JSON.stringify( {
+                        id : BMSHfID,
+                        type : 'folder',
+                        label : "MultiExport",
+                        uri : "white"} ) );
+            break;
         }
         portalLoop:
         for(var i in portals){
@@ -203,6 +234,18 @@ function wrapper(plugin_info) {
                         plugin.bookmarks.addPortalBookmark(guid, latlng, name);
                     }
                     break;
+                case 'BMSH':
+                    o.push( "PORTAL\t"
+                        + name
+                        + "\t"
+                        + JSON.stringify( {
+                            id : window.plugin.bookmarks.generateID(),
+                            type : 'portal',
+                            label : name,
+                            fId : BMSHfID,
+                            guid : guid,
+                            latlng : latlng } ) );
+                    break;
             }
         }
         if(type == 'BKMRK'){
@@ -244,7 +287,9 @@ function wrapper(plugin_info) {
         $('head').append('<style>' +
                          '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:100%; text-align:center; background:rgba(8,48,78,.9); }'+
                          'table.multiexporttabel { border: 1px solid #ffce00; text-align:center;} ' +
-                         'table.multiexporttabel td { border: 1px solid; text-align:center; width: 15%; table-layout: fixed;} ' +
+                         'table.multiexporttabel td { border: 1px solid; text-align:center; width: ' +
+                         ((plugin.bookmarksSharer) ? '12%' : '15%') +
+                         '; table-layout: fixed;} ' +
                          '.ui-dialog-multiExport {width: 400px !important}' +
                          '</style>');
 
