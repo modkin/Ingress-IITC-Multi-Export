@@ -4,6 +4,8 @@
 // @category       Misc
 // @version        0.10
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/portalStatus/status_export.user.js
+// @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/portalStatus/status_export.user.js
 // @description    Export portals from bookmarks, current view or polygon
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
