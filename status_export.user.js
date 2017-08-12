@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-status-export
 // @name           IITC plugin: Portal Status Export
 // @category       Misc
-// @version        0.10
+// @version        0.11
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/portalStatus/status_export.user.js
 // @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/portalStatus/status_export.user.js
@@ -22,26 +22,24 @@ function wrapper(plugin_info) {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') window.plugin = function() {};
 
-    window.plugin.statusexporter = function() {};
+    window.plugin.statusexport = function() {};
 
 
     /*********** MENUE ************************************************************/
-    window.plugin.statusexporter.createmenu = function() {
-        var htmldata ="<p> Please note that the first drawn polygon will be choosen to export from. </p>";
-        if(plugin.drawTools) {
-            htmldata += "<td> <a onclick=\"window.plugin.statusexport.export();\">export portal status from polygon</a> </td>";
-        }
+    window.plugin.statusexport.createmenu = function() {
+        var htmldata = "<p> Please note that the first drawn polygon will be choosen to export from. </p>"
+            + "<a onclick=\"window.plugin.statusexport.export();\">Export portal status to CSV</a>";
 
         window.dialog({
             title: "Status Export Options",
             html: htmldata,
             dialogClass: 'ui-dialog-multiExport'
         });
-
     };
 
     /*********** HELPER FUNCTION ****************************************************/
-    window.plugin.statusexport.portalinpolygon = function(portal,LatLngsObjectsArray) {
+    window.plugin.statusexport.portalinpolygon = function(portal,LatLngsObjectsArray)
+    {
         var portalCoords = portal.split(',');
 
         var x = portalCoords[0], y = portalCoords[1];
@@ -60,31 +58,36 @@ function wrapper(plugin_info) {
 
 
     /*********** ABSTRACT EXPORT FUNCTION ******************************************/
-    window.plugin.statusexport.export = function() {
+    window.plugin.statusexport.export = function()
+    {
         var o = [];
-        var sourceTitle;
-        var windowTitle = "Portal status export";
-        var drawLayer = JSON.parse(localStorage['plugin-draw-tools-layer']);
         var portals = window.portals;
+        var sourceTitle;
+        var windowTitle = "Status Export";
+
+        if(localStorage['plugin-draw-tools-layer'])
+        {
+            var drawLayer = JSON.parse(localStorage['plugin-draw-tools-layer']);
+        }
 
         portalLoop:
         for(var i in portals){
-            var p = window.portals[i];
 
+            var p = window.portals[i];
             var name = p.options.data.title;
             var guid = p.options.guid;
             var status = p.options.data.team;
-            var latlng = p._latlng.lat + ',' + p._latlng.lng;
+            var latlng = p._latlng.lat + ',' +  p._latlng.lng;
 
+            // skip if not in polygon
             for(var dl in drawLayer){
                 if(drawLayer[dl].type === 'polygon'){
-                    if(!window.plugin.statusexport.portalinpolygon(latlng,drawLayer[dl].latLngs)){
-                        continue portalLoop;
-                    }
+                    if(!window.plugin.statusexport.portalinpolygon(latlng,drawLayer[dl].latLngs)) continue portalLoop;
                 }
             }
 
             o.push("\"" + name + "\"," + guid + "," + status);
+
         }
 
         var ostr = o.join("\n");
@@ -93,7 +96,7 @@ function wrapper(plugin_info) {
             title: windowTitle,
             dialogClass: 'ui-dialog-maxfieldexport',
             html: '<textarea readonly id="idmExport" style="width: 600px; height: ' + ($(window).height() / 3) + 'px; margin-top: 5px;"></textarea>'
-                + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
+            + '<p><a onclick="$(\'.ui-dialog-maxfieldexport textarea\').select();">Select all</a></p>'
         }).parent();
 
         dialog.css("width", 630).css({
