@@ -2,10 +2,10 @@
 // @id             iitc-plugin-portal-multi-export
 // @name           IITC plugin: Portal Multi Export
 // @category       Misc
-// @version        0.10
+// @version        0.10.2
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
-// @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
+// // @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
+// // @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
 // @description    Export portals from bookmarks, current view or polygon
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
@@ -38,7 +38,7 @@ function wrapper(plugin_info) {
         if (plugin.bookmarksSharer) {
           htmldata += "<th> BMSH </th>";
         }
-        htmldata += " </tr> </thead>"
+        htmldata += " <th> EFML </th> </tr> </thead>"
         + "<tbody>"
         + "<tr> <th> Current View </th>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title='Export Current View to CSV'>XXX</a> </td>"
@@ -51,6 +51,7 @@ function wrapper(plugin_info) {
         if (plugin.bookmarksSharer) {
           htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('BMSH','VIEW');\" title='Export Current View to Bookmark Sharer'>XXX</a> </td>";
         }
+        htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('EFML' ,'VIEW');\" title='Export Current View to EFML'>XXX</a> </td>";
         htmldata += "</tr>";
         if(plugin.drawTools) {
             htmldata += "<tr> <th> Polygon </th>"
@@ -64,6 +65,7 @@ function wrapper(plugin_info) {
             if (plugin.bookmarksSharer) {
                 htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('BMSH','VIEWFIL' );\" title='Export Polygon to Bookmark Sharer'>XXX</a> </td>";
             }
+            htmldata += "<td> <a onclick=\"window.plugin.multiexport.export('EFML' ,'VIEWFIL');\" title='Export Current View to EFML'>XXX</a> </td>";
             htmldata += "</tr>";
         }
         if(plugin.bookmarks) {
@@ -76,6 +78,7 @@ function wrapper(plugin_info) {
                 htmldata += "<td style='border-color: transparent !important;'> <a title='' > </a> </td>"
                     + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('BMSH' );\" title='Export Bookmarks to Bookmark Sharer'>XXX</a> </td>";
             }
+            htmldata += "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('EFML' );\" title='Export Bookmarks to EFML'>XXX</a> </td>";
             htmldata += "</tr> </tbody>";
         }
 
@@ -235,6 +238,8 @@ function wrapper(plugin_info) {
                     }
                     break;
                 case 'BMSH':
+                    /* workaround -.- */
+                    var pgui = guid;
                     o.push( "PORTAL\t"
                         + name
                         + "\t"
@@ -243,8 +248,12 @@ function wrapper(plugin_info) {
                             type : 'portal',
                             label : name,
                             fId : BMSHfID,
-                            guid : guid,
-                            latlng : latlng } ) );
+                            guid : pguid,
+                            latlng : latlng/*,
+                            cell: S2.S2Cell.FromLatLng(p._latlng, 13).toString()*/ } ) );
+                    break;
+                case 'EFML':
+                    o.push( name + ": [" + lat + ", " + lng + "]" );
                     break;
             }
         }
@@ -275,7 +284,7 @@ function wrapper(plugin_info) {
             "top": ($(window).height() - dialog.height()) / 2,
             "left": ($(window).width() - dialog.width()) / 2
         });
-
+        ostr
         $("#idmExport").val(ostr);
     };
 
@@ -288,9 +297,9 @@ function wrapper(plugin_info) {
                          '.multiExportSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:100%; text-align:center; background:rgba(8,48,78,.9); }'+
                          'table.multiexporttabel { border: 1px solid #ffce00; text-align:center;} ' +
                          'table.multiexporttabel td { border: 1px solid; text-align:center; width: ' +
-                         ((plugin.bookmarksSharer) ? '12%' : '15%') +
+                         ((plugin.bookmarksSharer) ? '10%' : '12%') +
                          '; table-layout: fixed;} ' +
-                         '.ui-dialog-multiExport {width: 400px !important}' +
+                         '.ui-dialog-multiExport {width: 500px !important}' +
                          '</style>');
 
     };
@@ -307,3 +316,4 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
+
