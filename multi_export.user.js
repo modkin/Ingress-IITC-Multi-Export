@@ -140,7 +140,6 @@ function wrapper(plugin_info) {
             case 'JSON':
                 o.push("[");
         }
-        portalLoop:
         for(var i in portals){
             var keys = 0;
             if(source === 'BKMRK'){
@@ -155,10 +154,17 @@ function wrapper(plugin_info) {
                 var guid = p.options.guid;
                 var latlng = p._latlng.lat + ',' +  p._latlng.lng;
                 if(source === 'VIEWFIL'){
+                    var portalInPolygon = false;
                     for(var dl in drawLayer){
                         if(drawLayer[dl].type === 'polygon'){
-                            if(!window.plugin.multiexport.portalinpolygon(latlng,drawLayer[dl].latLngs)) continue portalLoop;
+                            if(window.plugin.multiexport.portalinpolygon(latlng,drawLayer[dl].latLngs)){
+                                portalInPolygon = true;
+                                break;
+                            }
                         }
+                    }
+                    if (!portalInPolygon){
+                        continue;
                     }
                 }
 
@@ -169,8 +175,8 @@ function wrapper(plugin_info) {
                 // skip if not currently visible
                 if (p._latlng.lat < b._southWest.lat || p._latlng.lng < b._southWest.lng || p._latlng.lat > b._northEast.lat || p._latlng.lng > b._northEast.lng) continue;
             }
-            lat = latlng.split(',')[0];
-            lng = latlng.split(',')[1];
+            var lat = latlng.split(',')[0];
+            var lng = latlng.split(',')[1];
             switch(type){
                 case 'MF':
                     o.push(name + ";https://www.ingress.com/intel?ll=" + latlng + "&z=18&pll=" + latlng + ";" + keys);
@@ -179,8 +185,8 @@ function wrapper(plugin_info) {
                     o.push("\"" + name + "\"," + lat + "," + lng);
                     break;
                 case 'GPX':
-                    iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
-                    gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
+                    var iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
+                    var gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
                     o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
                            +"<name>" + name + "</name>"
                            +"<desc>" + "Lat/Lon: " + lat + "," + lng + "\n"
@@ -193,7 +199,7 @@ function wrapper(plugin_info) {
                     break;
                 case 'JSON':
                     o.push("{");
-                    o.push("\"title\": \"" + name + "\",");
+                    o.push("\"title\": " + JSON.stringify(name) + ",");
                     o.push("\"guid\": \"" + guid + "\",");
                     o.push("\"latlng\": \"" + latlng + "\"");
                     o.push("},");
@@ -216,7 +222,9 @@ function wrapper(plugin_info) {
                 break;
             case 'JSON':
                 //remove the last ","
-                ostr = ostr.slice(0, -1);
+                if (ostr.length > 1) {
+                    ostr = ostr.slice(0, -1);
+                }
                 ostr += "]";
                 break;
         }
