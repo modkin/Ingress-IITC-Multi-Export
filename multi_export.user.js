@@ -1,21 +1,15 @@
 // ==UserScript==
-// @id             iitc-plugin-portal-multi-export
-// @name           IITC plugin: Portal Multi Export
-// @category       Misc
-// @version        0.9
-// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
-// @downloadURL    https://github.com/modkin/Ingress-IITC-Multi-Export/raw/master/multi_export.user.js
-// @description    Export portals from bookmarks, current view or polygon
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @include        https://*.ingress.com/mission*
-// @include        http://*.ingress.com/mission*
-// @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
-// @match          https://*.ingress.com/mission*
-// @match          http://*.ingress.com/mission*
-// @grant          none
+// @id              iitc-plugin-portal-multi-export
+// @name            IITC plugin: Portal Multi Export
+// @category        Misc
+// @version         0.10
+// @namespace       https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL       https://iitc.aradiv.de/plugin/37/multi_export.meta.js
+// @downloadURL     https://iitc.aradiv.de/plugin/37/multi_export.user.js
+// @description     Export portals from bookmarks, current view or polygon
+// @include         http*://*intel.ingress.com/*
+// @match           http*://*intel.ingress.com/*
+// @grant           none
 // ==/UserScript==
 
 function wrapper(plugin_info) {
@@ -30,9 +24,10 @@ function wrapper(plugin_info) {
         var htmldata = "<p> Export from <b> Current View </b>, <b> inside Polygon </b> or <b> Bookmarks </b> to various formats by clicking the corresponding cell in the table. </p>"
         + "<p> Please note that the first drawn polygon will be choosen to export from. </p>"
         + "<p> <b> BE AWARE: </b> If you choose <b> BKMRK </b> all portals will be added to the default bookmarks folder. </p>"
-        +"<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> GPX </th> <th> Maxfield </th> <th> JSON </th> <th> BKMRK </th> </tr>"
+        + "<table class='multiexporttabel'> <tr> <th> </th> <th> CSV </th> <th> TSV </th> <th> GPX </th> <th> Maxfield </th> <th> JSON </th> <th> BKMRK </th> </tr>"
         + "<tr> <th> Current View </th>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEW');\" title='Export Current View to CSV'>XXX</a> </td>"
+        + "<td> <a onclick=\"window.plugin.multiexport.export('TSV','VIEW');\" title='Export Current View to TSV'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEW');\" title='Export Current View to GPX'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEW');\" title='Export Current View to Maxfield'>XXX</a> </td>"
         + "<td> <a onclick=\"window.plugin.multiexport.export('JSON' ,'VIEW');\" title='Export Current View to JSON'>XXX</a> </td>";
@@ -43,6 +38,7 @@ function wrapper(plugin_info) {
         if(plugin.drawTools) {
             htmldata += "<tr> <th> Polygon </th>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('CSV','VIEWFIL');\" title='Export Polygon to CSV'>XXX</a> </td>"
+                + "<td> <a onclick=\"window.plugin.multiexport.export('TSV','VIEWFIL');\" title='Export Polygon to TSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('GPX','VIEWFIL');\" title='Export Polygon to GPX'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('MF' ,'VIEWFIL');\" title='Export Polygon to Maxfield'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.export('JSON' ,'VIEWFIL');\" title='Export Current View to JSON'>XXX</a> </td>";
@@ -54,6 +50,7 @@ function wrapper(plugin_info) {
         if(plugin.bookmarks) {
             htmldata += "<tr> <th> Bookmarks </th>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('CSV');\" title='Export Bookmarks to CSV'>XXX</a> </td>"
+                + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('TSV');\" title='Export Bookmarks to TSV'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('GPX');\" title='Export Bookmarks to GPX'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('MF' );\" title='Export Bookmarks to Maxfield'>XXX</a> </td>"
                 + "<td> <a onclick=\"window.plugin.multiexport.bkmrkmenu('JSON' );\" title='Export Bookmarks to JSON'>XXX</a> </td>"
@@ -69,7 +66,8 @@ function wrapper(plugin_info) {
     };
 
     /*********** HELPER FUNCTION ****************************************************/
-    window.plugin.multiexport.portalinpolygon = function(portal,LatLngsObjectsArray) {
+    window.plugin.multiexport.portalinpolygon = function(portal,LatLngsObjectsArray)
+    {
         var portalCoords = portal.split(',');
 
         var x = portalCoords[0], y = portalCoords[1];
@@ -103,24 +101,28 @@ function wrapper(plugin_info) {
     };
 
     /*********** ABSTRACT EXPORT FUNCTION ******************************************/
-    window.plugin.multiexport.export = function(type, source, bkmrkFolder) {
+    window.plugin.multiexport.export = function(type, source, bkmrkFolder)
+    {
         console.log(type);
         var o = [];
         var portals;
         var sourceTitle;
         var windowTitle;
-        if(type === 'MF') {
+        if(type === 'MF')
+        {
             windowTitle = 'Maxfield Export';
         } else {
             windowTitle = type + ' Export';
         }
-        if(localStorage['plugin-draw-tools-layer']) {
+        if(localStorage['plugin-draw-tools-layer'])
+        {
             var drawLayer = JSON.parse(localStorage['plugin-draw-tools-layer']);
         }
         if(source == 'BKMRK') {
             var bookmarks = JSON.parse(localStorage[plugin.bookmarks.KEY_STORAGE]);
             portals = bookmarks.portals[bkmrkFolder].bkmrk;
-        } else {
+        } else
+        {
             portals = window.portals;
         }
         switch(type){
@@ -133,7 +135,7 @@ function wrapper(plugin_info) {
                        +"xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\""
                        +">");
                 o.push("<metadata>"
-                       +"<link href=\"https://ingress.com/intel\"></link>"
+                       +"<link href=\"https://intel.ingress.com\"></link>"
                        +"</metadata>"
                       );
                 break;
@@ -142,18 +144,22 @@ function wrapper(plugin_info) {
         }
         for(var i in portals){
             var keys = 0;
-            if(source === 'BKMRK'){
+            if(source === 'BKMRK')
+            {
                 var name = bookmarks.portals[bkmrkFolder].bkmrk[i].label;
                 var latlng = bookmarks.portals[bkmrkFolder].bkmrk[i].latlng;
-                if(plugin.keys){
+                if(plugin.keys)
+                {
                     keys = plugin.keys.keys[bookmarks.portals[bkmrkFolder].bkmrk[i].guid];
                 }
-            }else{
+            }else
+            {
                 var p = window.portals[i];
                 var name = p.options.data.title;
                 var guid = p.options.guid;
                 var latlng = p._latlng.lat + ',' +  p._latlng.lng;
-                if(source === 'VIEWFIL'){
+                if(source === 'VIEWFIL')
+                {
                     var portalInPolygon = false;
                     for(var dl in drawLayer){
                         if(drawLayer[dl].type === 'polygon'){
@@ -177,38 +183,50 @@ function wrapper(plugin_info) {
             }
             var lat = latlng.split(',')[0];
             var lng = latlng.split(',')[1];
+
+            var iitcLink = "https://intel.ingress.com/intel?ll=" + latlng + "&z=16&pll=" + latlng;
+            var gmapLink = "https://google.com/maps/place/" + latlng;
+
             switch(type){
                 case 'MF':
-                    o.push(name + ";https://www.ingress.com/intel?ll=" + latlng + "&z=18&pll=" + latlng + ";" + keys);
-                    break;
+                    o.push(name + ";" + iitcLink + ";" + keys);
+                break;
                 case 'CSV':
-                    o.push("\"" + name + "\"," + lat + "," + lng);
-                    break;
+                    o.push(guid + "," + JSON.stringify(name) + "," + lat + "," + lng
+                           // + "," + iitcLink + "," + gmapLink
+                          );
+                break;
+                case 'TSV':
+                    o.push(guid + "\t" + JSON.stringify(name) + "\t" + lat + "\t" + lng
+                            + "\t" + iitcLink + "\t" + gmapLink
+                           );
+                break;
                 case 'GPX':
-                    var iitcLink = "https://www.ingress.com/intel?ll=" + lat + "," + lng + "&amp;z=17&amp;pll=" + lat + "," + lng;
-                    var gmapLink = "http://maps.google.com/?ll=" + lat + "," + lng + "&amp;q=" + lat + ","  + lng;
                     o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
                            +"<name>" + name + "</name>"
-                           +"<desc>" + "Lat/Lon: " + lat + "," + lng + "\n"
-                           + "Intel: " + iitcLink + "\n"
-                           + "GMap: " + gmapLink + "\n"
+                           +"<desc>" +
+                             + "Intel: " + iitcLink + "\n"
+                             + "GMap: " + gmapLink + "\n"
+                             + "guid: " + guid + "\n"
                            +"</desc>\n"
                            +"<link href=\"" + iitcLink + "\"></link>\n"
                            +"</wpt>"
                           );
-                    break;
+                break;
                 case 'JSON':
-                    o.push("{");
-                    o.push("\"title\": " + JSON.stringify(name) + ",");
-                    o.push("\"guid\": \"" + guid + "\",");
-                    o.push("\"latlng\": \"" + latlng + "\"");
-                    o.push("},");
-                    break;
+                    var obj = { guid: guid,
+                                title: name,
+                                coordinates: {lat: lat,
+                                              lng: lng},
+                                link: { intel: iitcLink, gmap: gmapLink }
+                              };
+                    o.push(JSON.stringify(obj) + ",");
+                break;
                 case 'BKMRK':
                     if(!window.plugin.bookmarks.findByGuid(guid)){
                         plugin.bookmarks.addPortalBookmark(guid, latlng, name);
                     }
-                    break;
+                break;
             }
         }
         if(type == 'BKMRK'){
@@ -219,14 +237,14 @@ function wrapper(plugin_info) {
             case 'GPX':
                 ostr += "</gpx>";
                 ostr = ostr.replace(/[&]/g, '');
-                break;
+            break;
             case 'JSON':
                 //remove the last ","
                 if (ostr.length > 1) {
                     ostr = ostr.slice(0, -1);
                 }
                 ostr += "]";
-                break;
+            break;
         }
 
         var dialog = window.dialog({
