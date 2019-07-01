@@ -2,7 +2,7 @@
 // @id              iitc-plugin-portal-multi-export
 // @name            IITC plugin: Portal Multi Export
 // @category        Misc
-// @version         0.10
+// @version         0.11
 // @namespace       https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL       https://iitc.aradiv.de/plugin/37/multi_export.meta.js
 // @downloadURL     https://iitc.aradiv.de/plugin/37/multi_export.user.js
@@ -158,6 +158,7 @@ function wrapper(plugin_info) {
                 var name = p.options.data.title;
                 var guid = p.options.guid;
                 var latlng = p._latlng.lat + ',' +  p._latlng.lng;
+                var pimage = p.options.data.image;
                 if(source === 'VIEWFIL')
                 {
                     var portalInPolygon = false;
@@ -193,21 +194,21 @@ function wrapper(plugin_info) {
                 break;
                 case 'CSV':
                     o.push(guid + "," + JSON.stringify(name) + "," + lat + "," + lng
-                           // + "," + iitcLink + "," + gmapLink
                           );
                 break;
                 case 'TSV':
                     o.push(guid + "\t" + JSON.stringify(name) + "\t" + lat + "\t" + lng
-                            + "\t" + iitcLink + "\t" + gmapLink
+                            + "\t" + iitcLink + "\t" + gmapLink + "\t" + pimage
                            );
                 break;
                 case 'GPX':
                     o.push("<wpt lat=\""+ lat + "\" lon=\""  + lng + "\">"
                            +"<name>" + name + "</name>"
-                           +"<desc>" +
-                             + "Intel: " + iitcLink + "\n"
+                           +"\n<desc>\n" +
+                             + "Intel Link: " + iitcLink + "\n"
                              + "GMap: " + gmapLink + "\n"
                              + "guid: " + guid + "\n"
+                             + "image: " + pimage + "\n"
                            +"</desc>\n"
                            +"<link href=\"" + iitcLink + "\"></link>\n"
                            +"</wpt>"
@@ -218,7 +219,8 @@ function wrapper(plugin_info) {
                                 title: name,
                                 coordinates: {lat: lat,
                                               lng: lng},
-                                link: { intel: iitcLink, gmap: gmapLink }
+                                link: { intel: iitcLink, gmap: gmapLink },
+                                image: pimage
                               };
                     o.push(JSON.stringify(obj) + ",");
                 break;
