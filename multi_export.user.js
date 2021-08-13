@@ -7,8 +7,8 @@
 // @updateURL       https://iitc.aradiv.de/plugin/37/multi_export.meta.js
 // @downloadURL     https://iitc.aradiv.de/plugin/37/multi_export.user.js
 // @description     Export portals from bookmarks, current view or polygon
-// @include         https://*intel.ingress.com/*
-// @match           https://*intel.ingress.com/*
+// @include         https://intel.ingress.com/*
+// @match           https://intel.ingress.com/*
 // @grant           none
 // ==/UserScript==
 
